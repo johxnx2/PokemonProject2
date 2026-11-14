@@ -1,11 +1,11 @@
 package logica.pokemones;
 
-import logica.TipoPokemon;
+import logica.TipoElementos;
 import logica.TipoCarta;
 
 public class Squirtle extends Pokemon {
     public Squirtle() {
-        super("Squirtle", TipoCarta.POKEMON, 20, TipoPokemon.AGUA, 60, false, false,1, 0);
+        super("Squirtle", TipoCarta.POKEMON, 20, TipoElementos.AGUA, 60, false, false,1, 0, true);
     }
     private String ataque1 = "Placaje";
 
@@ -20,7 +20,7 @@ public class Squirtle extends Pokemon {
     public void atacar(Pokemon objetivo){
         int e=this.getEnergiaAcumulada();
         if(e>=1) {
-            if (objetivo.getTipoP()==TipoPokemon.FUEGO) {
+            if (objetivo.getTipoP()==TipoElementos.FUEGO) {
                 objetivo.setPs(objetivo.getPs()-(danioBase+20));
                 System.out.println(this.getNombreCarta()+ " ataca\n"+"causa "+ (danioBase)+" de daño a "+objetivo.getNombreCarta()+"\nVida actual de "+objetivo.getNombreCarta()+" es "+
                 (objetivo.getPs() > 0 ? objetivo.getPs(): 0) );

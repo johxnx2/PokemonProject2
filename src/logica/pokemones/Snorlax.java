@@ -1,12 +1,12 @@
 package logica.pokemones;
 
-import logica.TipoPokemon;
+import logica.TipoElementos;
 import logica.TipoCarta;
 
 public class Snorlax extends Pokemon {
     public Snorlax () {
         super("Snorlax", TipoCarta.POKEMON, 100, 
-        TipoPokemon.INCOLORO, 150,  false, false,3, 0);
+        TipoElementos.INCOLORO, 150,  false, false,3, 0,false);
     }
 
     private String ataque1 = "Golpe Cuerpo";
