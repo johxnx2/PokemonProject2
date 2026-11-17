@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import logica.CartasEntrenador.*;
 import logica.pokemones.Pokemon;
+import logica.pokemones.Evo.PokemonEvo;
 import logica.Carta;
 
 import java.util.Scanner;
@@ -18,7 +19,7 @@ public void VerificarGanador(Jugador jugador1, Jugador jugador2) {
 }
 
 
-public void VerificarPuntos(Jugador atacante, Jugador defensor) {
+public void VerificarPuntos(Jugador atacante, Jugador defensor, Scanner scanner) {
     Pokemon pokemonDefensor = defensor.getPokemonActivo();
     if (pokemonDefensor != null && pokemonDefensor.getPs() <= 0) {
         System.out.println(pokemonDefensor.getNombreCarta() + " ha sido derrotado.");
@@ -27,11 +28,23 @@ public void VerificarPuntos(Jugador atacante, Jugador defensor) {
             System.out.println(atacante.getNombre() + " gana 2 puntos de premio por derrotar a un Pokémon EX.");
         } else {
             atacante.setPuntos(atacante.getPuntos() + 1);
-            System.out.println(atacante.getNombre() + " gana 1 punto de premio por derrotar a un Pokémon básico.");
+            System.out.println(atacante.getNombre() + " gana 1 punto de premio por derrotar a un Pokémon.");
         }
         // Retirar el Pokémon derrotado del juego
         defensor.setPokemonActivo(null);
-        elegirPokemonEnJuego(defensor, new Scanner(System.in));
+        boolean hayBancoDefensor = false;
+        for (Pokemon p : defensor.getBanco()) {
+            if (p != null) {
+                hayBancoDefensor = true;
+            }
+        }
+        if (hayBancoDefensor) {
+            int opc = ElegirOpcionBanco(defensor, scanner);
+            Pokemon nuevoActivo = defensor.getBanco()[opc - 1];
+            defensor.setBanco(null, opc - 1);
+            defensor.setPokemonActivo(nuevoActivo);
+            System.out.println(nuevoActivo.getNombreCarta() + " es ahora el Pokémon activo de " + defensor.getNombre() + ".");
+        }
     } 
 
 
@@ -51,26 +64,27 @@ public void VerificarPuntos(Jugador atacante, Jugador defensor) {
             return;
         }
 
+        ArrayList<Ataque> ataques = pokemonAtacante.getAtaques();
         // verificar si el pokemon atacante es EX para desplegar el menu de 2 ataques y sino 1 solo ataque
         if (pokemonAtacante.isEX()){
             int opcion;
         do{
-            System.out.println("Que ataque deseas usar?\n 1." +pokemonAtacante.getAtaque1() + (pokemonAtacante.getCostoEnergiaAtaque2() <= pokemonAtacante.getEnergiaAcumulada() ? "\n 2. "+pokemonAtacante.getAtaque2() : ""));
+            System.out.println("Que ataque deseas usar?\n 1." +ataques.get(0).getNombre() + (ataques.get(1).getCosto() <= pokemonAtacante.getEnergiaAcumulada() ? "\n 2. "+ataques.get(1).getNombre() : ""));
             opcion = scanner.nextInt();
             switch (opcion) {
                 case 1:
-                    pokemonAtacante.atacar(pokemonDefensor);
+                    pokemonAtacante.atacar(0, pokemonDefensor);
                     //////////////////////////////
                     break;
                 case 2:
-                    pokemonAtacante.atacar2(pokemonDefensor);
+                    pokemonAtacante.atacar(1, pokemonDefensor);
                     ////////////////////////////
                     break;
                 default:
                     System.out.println("Opción inválida. Por favor, ingrese 1 o 2.");
             }}while (opcion != 1 && opcion != 2);
         }else{
-            pokemonAtacante.atacar(pokemonDefensor);
+            pokemonAtacante.atacar(0, pokemonDefensor);
             /////////////////
         }
 
@@ -87,18 +101,21 @@ public static int valorRandom( ArrayList<Carta> mazo){
 
 public static Jugador crearJugador(int opc, String nombre, Scanner scanner) {
     ArrayList<Carta> mazo = null;
+    TipoElementos tipoEnergia = null;
     while (mazo == null) {
         switch (opc) {
-            case 1: mazo = CreadorMazosPDefecto.mazo1(); break;
-            case 2: mazo = CreadorMazosPDefecto.mazo2(); break;
-            case 3: mazo = CreadorMazosPDefecto.mazo3(); break;
+            case 1: mazo = CreadorMazosPDefecto.mazoAgua(); tipoEnergia = TipoElementos.AGUA; break;
+            case 2: mazo = CreadorMazosPDefecto.mazoFuego(); tipoEnergia = TipoElementos.FUEGO; break;
+            case 3: mazo = CreadorMazosPDefecto.mazoRayo(); tipoEnergia = TipoElementos.ELECTRICO; break;
             default:
                 System.out.println("Opción inválida. Ingrese de nuevo (1, 2 o 3):");
                 opc = scanner.nextInt();
         }
     }
     ArrayList<Carta> mano = CrearManoInicial(mazo);
-    return new Jugador(nombre, 0, mazo, mano, 0);
+    Jugador jugador = new Jugador(nombre, 0, mazo, mano, 0);
+    jugador.setTipoEnergia(tipoEnergia);
+    return jugador;
 }
 
 
@@ -141,9 +158,9 @@ public void iniciar() {
         System.out.println("Ingrese el nombre del jugador 2:");
         String nombreJugador2 = scanner.nextLine(); 
         CreadorMazosPDefecto.mostrarMazos(
-        CreadorMazosPDefecto.mazo1(),
-        CreadorMazosPDefecto.mazo2(),
-        CreadorMazosPDefecto.mazo3());
+        CreadorMazosPDefecto.mazoAgua(),
+        CreadorMazosPDefecto.mazoFuego(),
+        CreadorMazosPDefecto.mazoRayo());
 
     System.out.println("Jugador: " + nombreJugador1 + ", elija su mazo (1, 2 o 3):");
     int opcionMazoJugador1 = scanner.nextInt();
@@ -215,12 +232,12 @@ do {
                 if (actual.getPokemonActivo() == null){
                     System.out.println("No tienes un Pokémon activo para atacar.");
                     accion = 0; // No termina el turno, permite elegir otra acción
-                }else if(actual.getPokemonActivo().getEnergiaAcumulada() < actual.getPokemonActivo().getEnergiaMin()){
+                }else if(actual.getPokemonActivo().getEnergiaAcumulada() < actual.getPokemonActivo().getAtaques().get(0).getCosto()){
                     System.out.println("No tienes suficiente energía para atacar.");
                     accion = 0; // No termina el turno, permite elegir otra acción
                 }else{
                     atacar(actual, rival, scanner);
-                    VerificarPuntos(actual, rival);
+                    VerificarPuntos(actual, rival, scanner);
                     VerificarGanador(actual, rival);
                 }
                 break;
@@ -230,26 +247,35 @@ do {
             case 7:
                 mostrarMano(actual);
                 break;
+            case 8:
+                if (turno>1){
+                    jugarCartaEvo(actual, scanner);
+                }
+                else{
+                    System.out.println("no puedes evolucionar cartas en tu primer turno");
+                }
+                break;
             default:
-                System.out.println("Acción inválida. Por favor, ingrese un número del 1 al 7.");
+                System.out.println("Acción inválida. Por favor, ingrese un número del 1 al 8.");
         }
     } while (accion != 5 && accion != 6);
 
     resetearTurbo(actual);
 
     turno++;
-} while (jugador1.getMazo().size() > 0 && jugador2.getMazo().size() > 0
-        && jugador1.getPuntos() < 3 && jugador2.getPuntos() < 3);
+} while (jugador1.getPuntos() < 3 && jugador2.getPuntos() < 3);
 }
 
 
 private static void resetearTurbo(Jugador jugador) {
     if (jugador.getPokemonActivo() != null) {
         jugador.getPokemonActivo().setTurboVelocidadUsada(false);
+        jugador.getPokemonActivo().setEvolucionBloqueada(false);
     }
     for (Pokemon p : jugador.getBanco()) {
         if (p != null) {
             p.setTurboVelocidadUsada(false);
+            p.setEvolucionBloqueada(false);
         }
     }
 }
@@ -292,7 +318,7 @@ public static ArrayList<Carta> CrearManoInicial(ArrayList<Carta> mazo){
 
 private static boolean tienePokemon(ArrayList<Carta> mano) {
     for (Carta c : mano) {
-        if (c.getTipoCarta() == TipoCarta.POKEMON) {
+        if (c.getTipoCarta() == TipoCarta.POKEMON && !(c instanceof PokemonEvo)) {
             return true;
         }
     }
@@ -314,7 +340,7 @@ public static void mostrarMano(Jugador jugador) {
 ////////////////////mostrar datos//////////////////////////
 
 public static void mostrarDatos(Jugador jugador) {
-    System.out.println("Pokemon activo: " + (jugador.getPokemonActivo() != null ? jugador.getPokemonActivo().getNombreCarta() : "Ninguno"));
+    System.out.println("Pokemon activo: " + (jugador.getPokemonActivo() != null ? jugador.getPokemonActivo().getNombreCarta() + " PS. " + jugador.getPokemonActivo().getPs() : "Ninguno"));
     System.out.println("Energia adjunta al pokemon activo: " + (jugador.getPokemonActivo() != null ? jugador.getPokemonActivo().getEnergiaAcumulada() : 0));
     mostrarBanco(jugador);
     System.out.println("Puntos de premio: " + jugador.getPuntos()+"/3");
@@ -341,6 +367,103 @@ public static void mostrarBanco(Jugador jugador) {
         }
     }
 }
+public boolean jugarCartaEvo(Jugador jugador, Scanner scanner){
+    int opcion = escogerCartaEvo(jugador, scanner);
+    if (opcion == 0){
+        return false;
+    }
+    boolean hayEvoEnMazo=false;
+    PokemonEvo PokemonEvoJugar = (PokemonEvo)jugador.getMano().get(opcion-1);
+    ArrayList<Pokemon>opciones = obtenerPokInteractuables(jugador);
+    if (opciones==null){
+        System.out.println("no tienes pokemones disponibles para evolucionar");
+        return false;
+    }
+    System.out.println("Escoja un pokemon objetivo para evolucionar");
+    for(int i = 0; i<opciones.size();i++){
+        if (PokemonEvoJugar.puedeEvolucionarSobre(opciones.get(i)) && !opciones.get(i).isEvolucionBloqueada()){
+            System.out.println((i+1) + ". " + opciones.get(i).getNombreCarta());
+            hayEvoEnMazo = true;
+        }
+    }
+    if (!hayEvoEnMazo){
+        System.out.println("No tienes donde jugar esa carta evo");
+        return false;
+    }
+    int opcionJugador = scanner.nextInt();
+    if (opcionJugador<1 || opcionJugador >opciones.size() ){
+        System.out.println("Opción inválida");
+        return jugarCartaEvo(jugador, scanner);
+    }
+    Pokemon objetivo = opciones.get(opcionJugador-1);
+    if (PokemonEvoJugar.puedeEvolucionarSobre(objetivo) && !objetivo.isEvolucionBloqueada()){
+        int danioAcum = objetivo.getDanioAcumulado();
+        PokemonEvoJugar.setPs(PokemonEvoJugar.getPs()-danioAcum);
+        PokemonEvoJugar.setDanioAcumulado(danioAcum);
+        PokemonEvoJugar.setEnergiaAcumulada(objetivo.getEnergiaAcumulada());
+        PokemonEvoJugar.setEvolucionBloqueada(true);
+        if (objetivo == jugador.getPokemonActivo()){
+            jugador.setPokemonActivo(PokemonEvoJugar);
+        }else{
+            for (int i = 0; i < jugador.getBanco().length; i++){
+                if (jugador.getBanco()[i] == objetivo){
+                    jugador.setBanco(PokemonEvoJugar, i);
+                }
+            }
+        }
+        System.out.println(objetivo.getNombreCarta()+ " evolucionó a "+ PokemonEvoJugar.getNombreCarta());
+        jugador.getMano().remove(PokemonEvoJugar);
+        return true;
+
+    }else{
+    System.out.println("No es una opción válida, ingrese 1 para escoger de nuevo o cualquier otra tecla para salir del proceso de evolucion");
+    int opc = scanner.nextInt();
+    if(opc == 1){
+        return jugarCartaEvo(jugador, scanner);
+    }
+    else{
+        return false;
+    } }
+    
+    
+
+}
+public int escogerCartaEvo(Jugador jugador, Scanner scanner){
+
+    boolean hayEvo = false;
+    int opc;
+    
+    System.out.println("--------------------------------");
+    System.out.println("Mano del jugador: " + jugador.getNombre());
+    for (int i = 0; i < jugador.getMano().size(); i++) {
+        Carta carta = jugador.getMano().get(i);
+        if (carta instanceof PokemonEvo){
+            System.out.println((i + 1) + ". " + carta.getNombreCarta());
+            hayEvo = true;
+        } 
+    }
+    if (hayEvo==false){
+        System.out.println("No tienes Pokemones evolucionados en tu mano");
+        return 0;
+    }   
+    System.out.println("Ingrese el número de la carta que deseas usar para evolucionar");
+    opc = scanner.nextInt();
+    if (opc<1 || opc>jugador.getMano().size()){
+        System.out.println("opción inválida, escoja de nuevo");
+        return escogerCartaEvo(jugador, scanner);
+    }
+    if (!(jugador.getMano().get(opc-1) instanceof PokemonEvo)) {
+        System.out.println("La carta seleccionada no es evo, escoja de nuevo");
+        return escogerCartaEvo(jugador, scanner);
+    }
+
+    
+
+
+    System.out.println("--------------------------------");
+
+    return opc;
+}
 
 ////////////////muestra acciones//////////////////////////
 
@@ -355,14 +478,15 @@ public static int mostrarAcciones(Scanner scanner) {
         System.out.println("5. Atacar");
         System.out.println("6. Pasar turno");
         System.out.println("7. Mostrar mano");
+        System.out.println("8. Evolucionar Pokemon");
         System.out.println("Ingrese el número de la acción que desea realizar:");
         System.out.println("--------------------------------------------------\n");
         accion = scanner.nextInt();
         // CAMBIO: el límite era 6 y la opción 7 nunca llegaba al switch
-        if (accion < 1 || accion > 7) {
-            System.out.println("Acción inválida. Por favor, ingrese un número del 1 al 7.");
+        if (accion < 1 || accion > 8) {
+            System.out.println("Acción inválida. Por favor, ingrese un número del 1 al 8.");
         }
-    } while (accion < 1 || accion > 7);
+    } while (accion < 1 || accion > 8);
     return accion;
 }
 
@@ -372,7 +496,7 @@ public static Pokemon elegirPokemonDeMano(Jugador jugador, Scanner scanner) {
     ArrayList<Integer> posiciones = new ArrayList<>();
     for (int i = 0; i < jugador.getMano().size(); i++) {
         Carta c = jugador.getMano().get(i);
-        if (c.getTipoCarta() == TipoCarta.POKEMON) {
+        if (c.getTipoCarta() == TipoCarta.POKEMON && !(c instanceof PokemonEvo)) {
             posiciones.add(i);
             System.out.println(posiciones.size() + ". " + c.getNombreCarta());
         }
@@ -389,6 +513,7 @@ public static Pokemon elegirPokemonDeMano(Jugador jugador, Scanner scanner) {
     }
     int indiceEnMano = posiciones.get(opcion - 1);
     Pokemon elegido = (Pokemon) jugador.getMano().get(indiceEnMano);
+    elegido.setEvolucionBloqueada(true);
     jugador.getMano().remove(indiceEnMano);
     return elegido;
 }
@@ -543,13 +668,7 @@ public static void jugarCartaEntrenador(Jugador jugador, Scanner scanner) {
         System.out.println("Carta de entrenador " + cartaSeleccionada.getNombreCarta() + " jugada con éxito.");
     }
 }
-
-
-public static void adjuntarEnergia(Jugador jugador, Scanner scanner) {
-    if (jugador.getEnergy() < 1) {
-        System.out.println("No hay energía disponible para adjuntar.");
-        return;
-    }
+public static ArrayList<Pokemon>  obtenerPokInteractuables(Jugador jugador){
     ArrayList<Pokemon> opciones = new ArrayList<>();
     if (jugador.getPokemonActivo() != null) {
         opciones.add(jugador.getPokemonActivo());
@@ -561,6 +680,19 @@ public static void adjuntarEnergia(Jugador jugador, Scanner scanner) {
     }
     if (opciones.isEmpty()) {
         System.out.println("No tienes Pokémon en juego.");
+        return null;
+    }
+    return opciones;
+
+}
+
+public static void adjuntarEnergia(Jugador jugador, Scanner scanner) {
+    if (jugador.getEnergy() < 1) {
+        System.out.println("No hay energía disponible para adjuntar.");
+        return;
+    }
+    ArrayList<Pokemon>  opciones = obtenerPokInteractuables(jugador);
+    if (opciones==null){
         return;
     }
     System.out.println("Seleccione a qué Pokémon desea adjuntar la energía:");

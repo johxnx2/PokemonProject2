@@ -1,5 +1,5 @@
 package logica;
 
-public class TipoEnergia {
-
+public class Energia {
+    private TipoElementos tipo;
 }
