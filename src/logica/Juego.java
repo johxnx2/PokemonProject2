@@ -177,6 +177,7 @@ public void iniciar() {
         
         int turno = 0;
 do {  
+    boolean seHaEvolucionado = false;
     System.out.println("--------------------------------------------------");
     System.out.println("Turno: " + (turno + 1));
     System.out.println("--------------------------------------------------");
@@ -249,12 +250,28 @@ do {
                 break;
             case 8:
                 if (turno>1){
+<<<<<<< HEAD
                     jugarCartaEvo(actual, scanner);
                 }
                 else{
                     System.out.println("no puedes evolucionar cartas en tu primer turno");
                 }
                 break;
+=======
+                    if(!seHaEvolucionado){
+                    seHaEvolucionado=jugarCartaEvo(actual, scanner);
+                    }
+                    else{
+                        System.out.println("Ya has evolucionado una carta este turno");
+                    }
+
+                }
+                else{
+                    System.out.println("no puedes evolucionar cartas en tu primer turno");
+                }  
+
+                
+>>>>>>> origin/main
             default:
                 System.out.println("Acción inválida. Por favor, ingrese un número del 1 al 8.");
         }
@@ -369,9 +386,12 @@ public static void mostrarBanco(Jugador jugador) {
 }
 public boolean jugarCartaEvo(Jugador jugador, Scanner scanner){
     int opcion = escogerCartaEvo(jugador, scanner);
+<<<<<<< HEAD
     if (opcion == 0){
         return false;
     }
+=======
+>>>>>>> origin/main
     boolean hayEvoEnMazo=false;
     PokemonEvo PokemonEvoJugar = (PokemonEvo)jugador.getMano().get(opcion-1);
     ArrayList<Pokemon>opciones = obtenerPokInteractuables(jugador);
@@ -380,11 +400,19 @@ public boolean jugarCartaEvo(Jugador jugador, Scanner scanner){
         return false;
     }
     System.out.println("Escoja un pokemon objetivo para evolucionar");
+<<<<<<< HEAD
     for(int i = 0; i<opciones.size();i++){
         if (PokemonEvoJugar.puedeEvolucionarSobre(opciones.get(i)) && !opciones.get(i).isEvolucionBloqueada()){
             System.out.println((i+1) + ". " + opciones.get(i).getNombreCarta());
             hayEvoEnMazo = true;
         }
+=======
+    for(int i = 0; i<obtenerPokInteractuables(jugador).size();i++){
+        if (PokemonEvoJugar.getEvolucionaDe()==opciones.get(i).getNombreCarta()){
+            System.out.println((i+1) + opciones.get(i).getNombreCarta());
+            hayEvoEnMazo = true;
+                    }    
+>>>>>>> origin/main
     }
     if (!hayEvoEnMazo){
         System.out.println("No tienes donde jugar esa carta evo");
@@ -393,6 +421,7 @@ public boolean jugarCartaEvo(Jugador jugador, Scanner scanner){
     int opcionJugador = scanner.nextInt();
     if (opcionJugador<1 || opcionJugador >opciones.size() ){
         System.out.println("Opción inválida");
+<<<<<<< HEAD
         return jugarCartaEvo(jugador, scanner);
     }
     Pokemon objetivo = opciones.get(opcionJugador-1);
@@ -412,6 +441,15 @@ public boolean jugarCartaEvo(Jugador jugador, Scanner scanner){
             }
         }
         System.out.println(objetivo.getNombreCarta()+ " evolucionó a "+ PokemonEvoJugar.getNombreCarta());
+=======
+        jugarCartaEvo(jugador, scanner);
+    }
+    if (PokemonEvoJugar.puedeEvolucionarSobre(opciones.get(opcionJugador-1))){
+        int danioAcum = opciones.get(opcionJugador-1).getDanioAcumulado();
+        PokemonEvoJugar.setPs(PokemonEvoJugar.getPs()-danioAcum);
+        opciones.set(opcionJugador-1, PokemonEvoJugar);
+        System.out.println(opciones.get(opcionJugador-1).getNombreCarta()+ "evolucionó a "+ PokemonEvoJugar.getNombreCarta());
+>>>>>>> origin/main
         jugador.getMano().remove(PokemonEvoJugar);
         return true;
 
@@ -436,7 +474,11 @@ public int escogerCartaEvo(Jugador jugador, Scanner scanner){
     System.out.println("--------------------------------");
     System.out.println("Mano del jugador: " + jugador.getNombre());
     for (int i = 0; i < jugador.getMano().size(); i++) {
+<<<<<<< HEAD
         Carta carta = jugador.getMano().get(i);
+=======
+        Pokemon carta = (Pokemon)jugador.getMano().get(i);
+>>>>>>> origin/main
         if (carta instanceof PokemonEvo){
             System.out.println((i + 1) + ". " + carta.getNombreCarta());
             hayEvo = true;
@@ -449,7 +491,11 @@ public int escogerCartaEvo(Jugador jugador, Scanner scanner){
     System.out.println("Ingrese el número de la carta que deseas usar para evolucionar");
     opc = scanner.nextInt();
     if (opc<1 || opc>jugador.getMano().size()){
+<<<<<<< HEAD
         System.out.println("opción inválida, escoja de nuevo");
+=======
+        System.out.println("opción inválidan esocja de nuevo");
+>>>>>>> origin/main
         return escogerCartaEvo(jugador, scanner);
     }
     if (!(jugador.getMano().get(opc-1) instanceof PokemonEvo)) {

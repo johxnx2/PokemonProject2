@@ -6,10 +6,10 @@ import logica.TipoCarta;
 
 public class Snorlax extends Pokemon {
     public Snorlax () {
-       
         super("Snorlax", TipoCarta.POKEMON, 
-      TipoElementos.INCOLORO, 150,  false, false, false);
-        ataques.add(new Ataque("Golpe Cuerpo", 3, 100));
+        TipoElementos.INCOLORO, 150,  false, false, false);
+        ataques.add(new Ataque("Golpe Cuerpo", 3, 100));}
     }
-}
+
+
 

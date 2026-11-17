@@ -8,7 +8,10 @@ public class Blastoise extends Fase2 {
     public Blastoise() {
         super("Blastoise", TipoCarta.POKEMON, TipoElementos.AGUA, 150, false, false, true);
         evolucionaDe = "Wartortle";
+
         costoRetirada = 3;
+
+
         ataques.add(new Ataque("Hidrobomba", 3, 100));
     }
 }
