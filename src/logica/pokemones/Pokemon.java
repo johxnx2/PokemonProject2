@@ -1,52 +1,40 @@
 package logica.pokemones;
 
+import java.util.ArrayList;
+import logica.Ataque;
 import logica.Carta;
 import logica.Jugador;
 import logica.TipoCarta;
-import logica.TipoPokemon;
+import logica.TipoElementos;
 
 public abstract class Pokemon extends Carta{
 //constructor
-    public Pokemon(String nombre, TipoCarta tipoCarta, int danioBase, TipoPokemon tipo, int ps, boolean isEX, boolean isActive, int energiaMin, int costoEnergiaAtaque2) 
+    public Pokemon(String nombre, TipoCarta tipoCarta, TipoElementos tipo, int ps, boolean isEX, boolean isActive, boolean isEvo) 
     {
     super(nombre, tipoCarta);{
-        this.danioBase = danioBase;
+
         this.tipo = tipo;
         this.ps = ps;
         this.isEX = isEX;
         this.isActive = isActive;
-        this.energiaMin = energiaMin;
-        this.costoEnergiaAtaque2 = costoEnergiaAtaque2;
+        this.isEvo=isEvo;
     }
 }
 
 
 //atributo
-    protected int danioBase=10;
-    protected  TipoPokemon tipo;
+    protected int danioAcumulado = 0;
+    protected boolean isEvo;
+    protected  TipoElementos tipo;
     protected  int ps;
     protected boolean isEX;
     protected int EnergiaAcumulada;
     protected boolean isActive;
     protected boolean turboVelocidadUsada=false;
-    public String ataque1;
-    public String ataque2;
-    public int energiaMin;
-    public int costoEnergiaAtaque2;
+    protected ArrayList<Ataque> ataques = new ArrayList<>();
 
-    public int getCostoEnergiaAtaque2() {
-        return costoEnergiaAtaque2;
-    }
-
-
-    public int getEnergiaMin() {
-        return energiaMin;
-    }
-    public String getAtaque1() {
-        return ataque1;
-    }
-    public String getAtaque2() {
-        return ataque2;
+    public ArrayList<Ataque> getAtaques() {
+        return ataques;
     }
 
     public boolean isTurboVelocidadUsada() {
@@ -66,8 +54,14 @@ public abstract class Pokemon extends Carta{
     }
 
     //set y get
-    public TipoPokemon getTipoP() {
+    public TipoElementos getTipoP() {
         return tipo;
+    }
+    public void setDanioAcumulado(int n){
+        this.danioAcumulado = n + getDanioAcumulado();
+    }
+    public int getDanioAcumulado(){
+        return danioAcumulado;
     }
     
     public void setEnergiaAcumulada(int x){
@@ -78,7 +72,7 @@ public abstract class Pokemon extends Carta{
         return EnergiaAcumulada;
     }
 
-    public void setTipoPokemon(TipoPokemon tipo) {
+    public void setTipoElementos(TipoElementos tipo) {
         this.tipo = tipo;
     }
 
@@ -99,8 +93,23 @@ public abstract class Pokemon extends Carta{
 //--------
 //metodo abstrato
 
-    public abstract void atacar(Pokemon objetivo);
-    public abstract void atacar2(Pokemon objetivo);
+    public void atacar(int indice, Pokemon objetivo) {
+        Ataque ataque = ataques.get(indice);
+        if (this.getEnergiaAcumulada() >= ataque.getCosto()) {
+            int danio = ataque.getDanio();
+            setDanioAcumulado(danio);
+            
+            if (objetivo.getTipoP() == ataque.getTipoBono()) {
+                danio = danio + ataque.getBono();
+                setDanioAcumulado(danio);
+            }
+            objetivo.setPs(objetivo.getPs() - danio);
+            System.out.println(this.getNombreCarta()+ " ataca\n"+"causa "+ danio +" de daño a "+objetivo.getNombreCarta()+"\nVida actual de "+objetivo.getNombreCarta()+" es "+
+            (objetivo.getPs() > 0 ? objetivo.getPs(): 0) );
+        } else {
+            System.out.println("No tiene suficiente energia para atacar");
+        }
+    }
 
 //METODO RETIRADA
     

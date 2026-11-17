@@ -1,5 +1,5 @@
 package logica.CartasEntrenador;
-import logica.TipoPokemon;
+import logica.TipoElementos;
 import logica.pokemones.Pokemon;
 import logica.Jugador;
 
@@ -17,7 +17,7 @@ public class Misty extends CartaEntrenador {
 
     @Override
     public boolean ActivarCarta(Jugador jugador, Pokemon objetivo) {
-        if (objetivo == null || objetivo.getTipoP() != TipoPokemon.AGUA) {
+        if (objetivo == null || objetivo.getTipoP() != TipoElementos.AGUA) {
             System.out.println("Tu Pokémon no es de tipo Agua, por lo que no se puede usar Misty en él.");
             return false;
         }

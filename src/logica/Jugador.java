@@ -1,7 +1,8 @@
 package logica;
 import java.util.ArrayList;
-import logica.pokemones.Pokemon;
+
 import logica.Carta;
+import logica.pokemones.Pokemon;
 
 
 public class Jugador {
