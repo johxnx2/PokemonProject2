@@ -22,6 +22,7 @@ public class Pocion extends CartaEntrenador {
         this.isActivated = true;
         System.out.println("Se ha usado una poción en " + objetivo.getNombreCarta()
                 + " y ahora tiene " + objetivo.getPs() + " puntos de salud");
+        objetivo.setDanioAcumulado(objetivo.getDanioAcumulado()-20);
         return true;
     }
 }

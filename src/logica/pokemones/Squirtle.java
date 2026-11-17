@@ -1,10 +1,18 @@
 package logica.pokemones;
 
+
+import logica.Ataque;
+
+
 import logica.TipoElementos;
 import logica.TipoCarta;
 
 public class Squirtle extends Pokemon {
     public Squirtle() {
+
+        super("Squirtle", TipoCarta.POKEMON, TipoElementos.AGUA, 60, false, false, true);
+        ataques.add(new Ataque("Placaje", 1, 20, TipoElementos.FUEGO, 20));
+
         super("Squirtle", TipoCarta.POKEMON, 20, TipoElementos.AGUA, 60, false, false,1, 0, true);
     }
     private String ataque1 = "Placaje";
@@ -34,5 +42,6 @@ public class Squirtle extends Pokemon {
             System.out.println("No tiene suficiente energia para atacar");
             return;
         }
+
     }
 }
