@@ -12,6 +12,8 @@ public class Jugador {
     private ArrayList<Carta> mazo = new ArrayList<>();
     private ArrayList<Carta> mano = new ArrayList<>();
     private Pokemon pokemonActivo;
+    private TipoElementos tipoEnergia;
+
     private int energy;
     //private Carta cartaEntrenador;  #neverUsed.
     private Pokemon Banco[] = new Pokemon[2];
@@ -21,6 +23,12 @@ public class Jugador {
         this.mazo = mazo;
         this.mano = mano;
         this.energy = energy;
+    }
+        public TipoElementos getTipoEnergia() {
+        return tipoEnergia;
+    }
+    public void setTipoEnergia(TipoElementos tipoEnergia) {
+        this.tipoEnergia = tipoEnergia;
     }
     public Pokemon[] getBanco() {
         return Banco;

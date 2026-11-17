@@ -3,6 +3,7 @@ import logica.Carta;
 import logica.TipoCarta;
 import logica.pokemones.Pokemon;
 import logica.Jugador;
+import logica.pokemones.Evo.PokemonEvo;
 
 
 
@@ -21,7 +22,7 @@ public class Pokebola extends CartaEntrenador {
         }
         for (int i = 0; i < jugador.getMazo().size(); i++) {
             Carta c = jugador.getMazo().get(i);
-            if (c.getTipoCarta() == TipoCarta.POKEMON && !((Pokemon) c).isEX()) {
+            if (c.getTipoCarta() == TipoCarta.POKEMON && !((Pokemon) c).isEX() && !(c instanceof PokemonEvo)) {
                 jugador.getMazo().remove(i);
                 jugador.getMano().add(c);
                 this.isActivated = true;

@@ -158,7 +158,7 @@ src/logica
 ├── CreadorMazosPDefecto.java    → fábrica de los 3 mazos predefinidos
 ├── Carta.java                   → clase abstracta base de toda carta
 ├── TipoCarta.java               → enum: POKEMON, ENTRENADOR
-├── TipoPokemon.java             → enum: FUEGO, AGUA, ELECTRICO, PSIQUICO, INCOLORO
+├── TipoElementos.java             → enum: FUEGO, AGUA, ELECTRICO, PSIQUICO, INCOLORO
 ├── pokemones/
 │   ├── Pokemon.java             → clase abstracta (PS, tipo, energía, ataques, retirada)
 │   └── Pikachu, Charmander, Squirtle, Jigglypuff, Magikarp, Snorlax,

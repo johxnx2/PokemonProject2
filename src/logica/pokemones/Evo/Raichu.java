@@ -1,6 +1,4 @@
 package logica.pokemones.Evo;
-
-
 import logica.Ataque;
 import logica.TipoElementos;
 import logica.TipoCarta;
@@ -11,8 +9,7 @@ public class Raichu extends Fase1 {
         evolucionaDe = "Pikachu";
         ataques.add(new Ataque("Trueno", 2, 60));
     }
-
-public class Raichu {
-
-
 }
+
+
+

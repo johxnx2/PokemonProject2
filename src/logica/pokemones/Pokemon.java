@@ -18,6 +18,7 @@ public abstract class Pokemon extends Carta{
         this.isEX = isEX;
         this.isActive = isActive;
         this.isEvo=isEvo;
+        this.costoRetirada = isEX ? 3 : 1;
     }
 }
 
@@ -32,9 +33,19 @@ public abstract class Pokemon extends Carta{
     protected boolean isActive;
     protected boolean turboVelocidadUsada=false;
     protected ArrayList<Ataque> ataques = new ArrayList<>();
+    protected boolean evolucionBloqueada = false;
+    protected int costoRetirada;
 
     public ArrayList<Ataque> getAtaques() {
         return ataques;
+    }
+
+    public boolean isEvolucionBloqueada() {
+        return evolucionBloqueada;
+    }
+
+    public void setEvolucionBloqueada(boolean evolucionBloqueada) {
+        this.evolucionBloqueada = evolucionBloqueada;
     }
 
     public boolean isTurboVelocidadUsada() {
@@ -97,12 +108,11 @@ public abstract class Pokemon extends Carta{
         Ataque ataque = ataques.get(indice);
         if (this.getEnergiaAcumulada() >= ataque.getCosto()) {
             int danio = ataque.getDanio();
-            setDanioAcumulado(danio);
             
             if (objetivo.getTipoP() == ataque.getTipoBono()) {
                 danio = danio + ataque.getBono();
-                setDanioAcumulado(danio);
             }
+            objetivo.setDanioAcumulado(danio);
             objetivo.setPs(objetivo.getPs() - danio);
             System.out.println(this.getNombreCarta()+ " ataca\n"+"causa "+ danio +" de daño a "+objetivo.getNombreCarta()+"\nVida actual de "+objetivo.getNombreCarta()+" es "+
             (objetivo.getPs() > 0 ? objetivo.getPs(): 0) );
@@ -114,21 +124,12 @@ public abstract class Pokemon extends Carta{
 //METODO RETIRADA
     
     public boolean PuedeRetirada(){
-        if(this.isEX()){
-
-            if(this.getEnergiaAcumulada()>=(this.turboVelocidadUsada? 2 : 3)){
-                this.setEnergiaAcumulada(this.getEnergiaAcumulada()-(this.turboVelocidadUsada? 2 : 3));
-                return true;
-            }else{
-                return false;
-            }
+        int costo = this.turboVelocidadUsada ? costoRetirada - 1 : costoRetirada;
+        if(this.getEnergiaAcumulada()>=costo){
+            this.setEnergiaAcumulada(this.getEnergiaAcumulada()-costo);
+            return true;
         }else{
-            if(this.getEnergiaAcumulada()>=(this.turboVelocidadUsada? 0 : 1)){
-                this.setEnergiaAcumulada(this.getEnergiaAcumulada()-(this.turboVelocidadUsada? 0 : 1));
-                return true;
-            }else{
-                return false;
-            }
+            return false;
         }
     }
 
@@ -140,4 +141,3 @@ public Pokemon retirar(Jugador jugador,int opc,Pokemon pokemon){
     return nuevoActivo ;
 }
 }
-
